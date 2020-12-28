@@ -27,3 +27,9 @@ firebase deploy --only functions
 - [ ] Create order via api signal
 - [ ] Auto repay margin account
 - [ ] Alert when orders changed status
+
+## Donation
+
+ETH: 0x8888889024545e12c36568d84e07f2a919069718
+
+![](https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=0x8888889024545e12c36568d84e07f2a919069718&choe=UTF-8)
