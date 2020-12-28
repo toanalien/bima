@@ -1,5 +1,7 @@
 # bima
-người chơi hệ nạp tiền
+
+**dành cho người chơi hệ nạp tiền**
+
 
 ![](https://i.imgur.com/2wKu8QC.png)
 
