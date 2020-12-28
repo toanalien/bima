@@ -19,3 +19,11 @@ firebase deploy --only functions
 3. Dùng [Cloud Scheduler](https://cloud.google.com/scheduler) gọi interval vào endpoint Cloud Funtions
 
 ![](https://i.imgur.com/yTZ0dei.png)
+
+
+## Todo
+
+- [ ] Stoploss when abnormal volatility
+- [ ] Create order via api signal
+- [ ] Auto repay margin account
+- [ ] Alert when orders changed status
