@@ -10,8 +10,12 @@
 1. Tạo Firebase Project
 2. Deploy
 
+![](https://i.imgur.com/9glNqTR.png)
+
 ```bash
 firebase deploy --only functions
 ```
 
 3. Dùng [Cloud Scheduler](https://cloud.google.com/scheduler) gọi interval vào endpoint Cloud Funtions
+
+![](https://i.imgur.com/yTZ0dei.png)
