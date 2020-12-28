@@ -13,3 +13,5 @@
 ```bash
 firebase deploy --only functions
 ```
+
+3. Dùng [Cloud Scheduler](https://cloud.google.com/scheduler) gọi interval vào endpoint Cloud Funtions
