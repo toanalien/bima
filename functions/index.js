@@ -77,7 +77,7 @@ exports.getMarginIsolatedAccount = functions.https.onRequest(async (req, res) =>
     })
     console.log(marginOpenOrders)
     await map(marginOpenOrders, async _order => {
-        await admin.firestore().collection('order').doc(_order['orderId'].toString()).set(_order, {merge: true});
+        await admin.firestore().collection('order').doc(_order['orderId'].toString()).set(_order, { merge: true });
     })
 
     return res.json({ 'status': 'success', 'data': timestamp });
@@ -189,3 +189,59 @@ exports.order = functions.https.onRequest(async (req, res) => {
         "isIsolated": true
     }))
 })
+
+exports.myTrades = functions.https.onRequest(async (req, res) => {
+    const token = req.query.token;
+    if (token != http_token) {
+        return res.json({ "status": "failed", "data": "token not match" });
+    }
+    let trades = await binance.sapi_get_margin_mytrades({
+        "symbol": "TOMOUSDT",
+        "isIsolated": true
+    })
+
+    await map(trades, async _trade => {
+        await admin.firestore().collection('trade').doc(_trade['orderId'].toString()).set(_trade, { merge: true });
+    })
+    return res.json({ 'status': 'success', 'data': timestamp });
+})
+
+exports.notifyOrder = functions.firestore.document('/trade/{documentId}')
+    .onWrite(async (change, context) => {
+        const docId = context.params.documentId;
+        const before = change.before.data();
+        const after = change.after.data();
+        if (after == undefined) return;
+
+        if (before == undefined || !before.hasOwnProperty('id')) {
+            let date = new Date(after.time);
+            let side = 'Buy';
+            if (after.isBuyer == false) side = 'Sell';
+            let text = `
+*${after.symbol}*
+price: ${after.price}
+qty: ${after.qty}
+side: *${side}*
+cost: *${parseFloat(after.price * after.qty + after.commission).toFixed(2)}*
+${date.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
+            `
+            var body = {
+                chat_id: chat_id,
+                disable_web_page_preview: true,
+                parse_mode: 'markdown',
+                text: text,
+            }
+
+            var options = {
+                method: 'POST',
+                url: url,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                data: body
+            };
+
+            var results = await axios(options);
+            console.log(results);
+        }
+    });
