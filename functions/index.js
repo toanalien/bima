@@ -190,7 +190,7 @@ exports.order = functions.https.onRequest(async (req, res) => {
     }))
 })
 
-exports.myTrades = functions.https.onRequest(async (req, res) => {
+exports.getMarginMytrades = functions.https.onRequest(async (req, res) => {
     const token = req.query.token;
     if (token != http_token) {
         return res.json({ "status": "failed", "data": "token not match" });
@@ -206,7 +206,7 @@ exports.myTrades = functions.https.onRequest(async (req, res) => {
     return res.json({ 'status': 'success', 'data': timestamp });
 })
 
-exports.notifyOrder = functions.firestore.document('/trade/{documentId}')
+exports.notifyTrade = functions.firestore.document('/trade/{documentId}')
     .onWrite(async (change, context) => {
         const docId = context.params.documentId;
         const before = change.before.data();
