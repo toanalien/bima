@@ -157,6 +157,19 @@ exports.telehook = functions.https.onRequest(async (req, res) => {
             // var reCheckPrice = /p\s+(.*)/i;
             let text = body['message']['text'];
             if (text == 'o' || text == 'O') {
+                let host = req.get('host');
+                if (!host.includes('localhost')) {
+                    var baseUrl = req.protocol + '://' + host;
+                    var url = `${baseUrl}/getOrder?token=${http_token}&force=true`;
+                    var options = {
+                        method: 'GET',
+                        url: url,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    };
+                    await axios(options);
+                }
 
             }
             // let pair = text.match(reCheckPrice);
@@ -184,11 +197,43 @@ exports.telehook = functions.https.onRequest(async (req, res) => {
     res.sendStatus(200);
 })
 
-exports.order = functions.https.onRequest(async (req, res) => {
-    res.json(await binance.sapi_get_margin_openorders({
+exports.getOrder = functions.https.onRequest(async (req, res) => {
+    let orders = await binance.sapi_get_margin_openorders({
         "symbol": "TOMOUSDT",
         "isIsolated": true
-    }))
+    });
+
+    await map(orders, async _order => {
+        let date = new Date(_order.updateTime);
+        let text = `
+*${_order.symbol}*
+price: ${_order.price}
+origQty: ${_order.origQty}
+executedQty: ${_order.executedQty}
+side: *${_order.side}*
+stopPrice: ${_order.stopPrice}
+cost: *${parseFloat(_order.origQty * _order.price).toFixed(2)}*
+${date.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
+            `
+        var body = {
+            chat_id: chat_id,
+            disable_web_page_preview: true,
+            parse_mode: 'markdown',
+            text: text,
+        }
+
+        var options = {
+            method: 'POST',
+            url: url,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: body
+        };
+
+        var results = await axios(options);
+    })
+    res.json();
 })
 
 exports.getMarginMytrades = functions.https.onRequest(async (req, res) => {
