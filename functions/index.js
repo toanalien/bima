@@ -250,7 +250,7 @@ ${date.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
 
 exports.exchange = functions.https.onRequest(async (req, res) => {
     let host = req.get('host');
-    if (!host.includes('localhost')) {
+    if (host.includes('localhost')) {
         res.json(await binance);
     }
     res.json();
