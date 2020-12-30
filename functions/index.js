@@ -146,8 +146,6 @@ ${new Date().toUTCString()}
         console.log(results);
 
     }
-
-
     res.json({ sum, avg, last, volatility });
 })
 
@@ -201,8 +199,9 @@ exports.getMarginMytrades = functions.https.onRequest(async (req, res) => {
     })
 
     await map(trades, async _trade => {
-        await admin.firestore().collection('trade').doc(_trade['orderId'].toString()).set(_trade, { merge: true });
+        await admin.firestore().collection('trade').doc(_trade['id'].toString()).set(_trade, { merge: true });
     })
+    let timestamp = Math.floor(new Date().setSeconds(0) / 1000);
     return res.json({ 'status': 'success', 'data': timestamp });
 })
 
@@ -223,6 +222,57 @@ price: ${after.price}
 qty: ${after.qty}
 side: *${side}*
 cost: *${parseFloat(after.price * after.qty + after.commission).toFixed(2)}*
+${date.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
+            `
+            var body = {
+                chat_id: chat_id,
+                disable_web_page_preview: true,
+                parse_mode: 'markdown',
+                text: text,
+            }
+
+            var options = {
+                method: 'POST',
+                url: url,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                data: body
+            };
+
+            var results = await axios(options);
+            console.log(results);
+        }
+    });
+
+exports.exchange = functions.https.onRequest(async (req, res) => {
+    res.json(await binance);
+})
+
+exports.interest = functions.https.onRequest(async (req, res) => {
+    let timestamp = Math.floor(new Date().setSeconds(0) / 1000);
+    let interests = await binance.sapi_get_margin_interesthistory({ "isolatedSymbol": "TOMOUSDT" });
+    await map(interests['rows'], async _interest => {
+        await admin.firestore().collection('interest').doc(_interest['txId'].toString()).set(_interest, { merge: true });
+    })
+
+    return res.json({ 'status': 'success', 'data': timestamp });
+})
+
+exports.notifyInterest = functions.firestore.document('/interest/{documentId}')
+    .onWrite(async (change, context) => {
+        const docId = context.params.documentId;
+        const before = change.before.data();
+        const after = change.after.data();
+        if (after == undefined) return;
+
+        if (before == undefined || !before.hasOwnProperty('txId')) {
+            let date = new Date(after.interestAccuredTime);
+            let text = `
+*${after.asset}*
+principal: ${parseFloat(after.principal).toFixed(2)}
+interest: *${parseFloat(after.interest).toFixed(4)}*
+isolatedSymbol: *${after.isolatedSymbol}*
 ${date.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
             `
             var body = {
