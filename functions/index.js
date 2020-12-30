@@ -130,7 +130,7 @@ Volatility : *${volatility}%*
 ${date.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
     `
         var body = {
-            channel_id: channel_id,
+            chat_id: channel_id,
             disable_web_page_preview: true,
             parse_mode: 'markdown',
             text: text,
@@ -204,7 +204,7 @@ cost: *${parseFloat(_order.origQty * _order.price).toFixed(2)}*
 ${date.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
             `
         var body = {
-            channel_id: chat_id,
+            chat_id: chat_id,
             disable_web_page_preview: true,
             parse_mode: 'markdown',
             text: text,
@@ -262,7 +262,7 @@ cost: *${parseFloat(after.price * after.qty + after.commission).toFixed(2)}*
 ${date.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
             `
             var body = {
-                channel_id: channel_id,
+                chat_id: channel_id,
                 disable_web_page_preview: true,
                 parse_mode: 'markdown',
                 text: text,
@@ -322,7 +322,7 @@ isolatedSymbol: *${after.isolatedSymbol}*
 ${date.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
             `
             var body = {
-                channel_id: channel_id,
+                chat_id: channel_id,
                 disable_web_page_preview: true,
                 parse_mode: 'markdown',
                 text: text,
