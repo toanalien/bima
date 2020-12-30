@@ -155,7 +155,10 @@ exports.telehook = functions.https.onRequest(async (req, res) => {
         let body = req.body;
         if (body.hasOwnProperty('message') && body['message'].hasOwnProperty('text')) {
             // var reCheckPrice = /p\s+(.*)/i;
-            // let text = body['message']['text'];
+            let text = body['message']['text'];
+            if (text == 'o' || text == 'O') {
+
+            }
             // let pair = text.match(reCheckPrice);
             // if (pair.length == 2) {
             //     pair = pair[1];
@@ -246,10 +249,18 @@ ${date.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
     });
 
 exports.exchange = functions.https.onRequest(async (req, res) => {
-    res.json(await binance);
+    let host = req.get('host');
+    if (!host.includes('localhost')) {
+        res.json(await binance);
+    }
+    res.json();
 })
 
 exports.getInterest = functions.https.onRequest(async (req, res) => {
+    const token = req.query.token;
+    if (token != http_token) {
+        return res.json({ "status": "failed", "data": "token not match" });
+    }
     let timestamp = Math.floor(new Date().setSeconds(0) / 1000);
     let interests = await binance.sapi_get_margin_interesthistory({ "isolatedSymbol": "TOMOUSDT" });
     await map(interests['rows'], async _interest => {
