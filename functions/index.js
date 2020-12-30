@@ -10,6 +10,7 @@ admin.initializeApp({});
 const api_key = functions.config().api.key;
 const api_secret = functions.config().api.secret;
 const http_token = functions.config().http.token;
+const channel_id = functions.config().channel.id;
 const chat_id = functions.config().chat.id;
 const bot_token = functions.config().bot.token;
 var url = `https://api.telegram.org/bot${bot_token}/sendMessage`;
@@ -91,6 +92,7 @@ exports.getAbnormalVolatility = functions.https.onRequest(async (req, res) => {
     }
     let marginIsolateds = [];
     let timestamp = Math.floor(new Date().setSeconds(0) / 1000);
+    let date = new Date();
     let from = timestamp - 14 * 60 * 5;
     let snapshot = await admin.firestore().collection('marginIsolated').where('timestamp', '>=', from).orderBy('timestamp').get();
 
@@ -119,15 +121,16 @@ exports.getAbnormalVolatility = functions.https.onRequest(async (req, res) => {
 
     if (volatility < -2 || volatility > 2 || force == 'true') {
         let text = `
+*Balance*
 Avg          : $${avg}
 Max          : *$${max}*
 Min          : $${min}
 Last         : *$${last}*
 Volatility : *${volatility}%*
-${new Date().toUTCString()}
+${date.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
     `
         var body = {
-            chat_id: chat_id,
+            channel_id: channel_id,
             disable_web_page_preview: true,
             parse_mode: 'markdown',
             text: text,
@@ -190,6 +193,7 @@ exports.getOrder = functions.https.onRequest(async (req, res) => {
     await map(orders, async _order => {
         let date = new Date(_order.updateTime);
         let text = `
+*Open Order*
 *${_order.symbol}*
 price: ${_order.price}
 origQty: ${_order.origQty}
@@ -200,7 +204,7 @@ cost: *${parseFloat(_order.origQty * _order.price).toFixed(2)}*
 ${date.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
             `
         var body = {
-            chat_id: chat_id,
+            channel_id: chat_id,
             disable_web_page_preview: true,
             parse_mode: 'markdown',
             text: text,
@@ -249,6 +253,7 @@ exports.notifyTrade = functions.firestore.document('/trade/{documentId}')
             let side = 'Buy';
             if (after.isBuyer == false) side = 'Sell';
             let text = `
+*Exec Trade*
 *${after.symbol}*
 price: ${after.price}
 qty: ${after.qty}
@@ -257,7 +262,7 @@ cost: *${parseFloat(after.price * after.qty + after.commission).toFixed(2)}*
 ${date.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
             `
             var body = {
-                chat_id: chat_id,
+                channel_id: channel_id,
                 disable_web_page_preview: true,
                 parse_mode: 'markdown',
                 text: text,
@@ -309,6 +314,7 @@ exports.notifyInterest = functions.firestore.document('/interest/{documentId}')
         if (before == undefined || !before.hasOwnProperty('txId')) {
             let date = new Date(after.interestAccuredTime);
             let text = `
+*Interest*
 *${after.asset}*
 principal: ${parseFloat(after.principal).toFixed(2)}
 interest: *${parseFloat(after.interest).toFixed(4)}*
@@ -316,7 +322,7 @@ isolatedSymbol: *${after.isolatedSymbol}*
 ${date.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
             `
             var body = {
-                chat_id: chat_id,
+                channel_id: channel_id,
                 disable_web_page_preview: true,
                 parse_mode: 'markdown',
                 text: text,
