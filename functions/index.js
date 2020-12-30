@@ -156,41 +156,25 @@ exports.telehook = functions.https.onRequest(async (req, res) => {
         if (body.hasOwnProperty('message') && body['message'].hasOwnProperty('text')) {
             // var reCheckPrice = /p\s+(.*)/i;
             let text = body['message']['text'];
-            if (text == 'o' || text == 'O') {
-                let host = req.get('host');
-                if (!host.includes('localhost')) {
-                    var baseUrl = req.protocol + '://' + host;
-                    var url = `${baseUrl}/getOrder?token=${http_token}&force=true`;
-                    var options = {
-                        method: 'GET',
-                        url: url,
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    };
-                    await axios(options);
-                }
-
-            }
-            // let pair = text.match(reCheckPrice);
-            // if (pair.length == 2) {
-            //     pair = pair[1];
-
-            // }
-
             let host = req.get('host');
 
             if (!host.includes('localhost')) {
                 var baseUrl = req.protocol + '://' + host;
-                var url = `${baseUrl}/getAbnormalVolatility?token=${http_token}&force=true`;
                 var options = {
                     method: 'GET',
-                    url: url,
                     headers: {
                         'Content-Type': 'application/json'
                     }
                 };
-                await axios(options);
+                if (text == 'o' || text == 'O') {
+                    var url = `${baseUrl}/getOrder?token=${http_token}&force=true`;
+                    options['url'] = url;
+                    await axios(options);
+                } else {
+                    var url = `${baseUrl}/getAbnormalVolatility?token=${http_token}&force=true`;
+                    options['url'] = url;
+                    await axios(options);
+                }
             }
         }
     }
