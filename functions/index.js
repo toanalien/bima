@@ -249,7 +249,7 @@ exports.exchange = functions.https.onRequest(async (req, res) => {
     res.json(await binance);
 })
 
-exports.interest = functions.https.onRequest(async (req, res) => {
+exports.getInterest = functions.https.onRequest(async (req, res) => {
     let timestamp = Math.floor(new Date().setSeconds(0) / 1000);
     let interests = await binance.sapi_get_margin_interesthistory({ "isolatedSymbol": "TOMOUSDT" });
     await map(interests['rows'], async _interest => {
