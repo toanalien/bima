@@ -99,7 +99,7 @@ exports.getAbnormalVolatility = functions.https.onRequest(async (req, res) => {
 
     let lastItem = marginIsolateds.pop();
     let last = parseFloat(lastItem['totalNetAssetOfUsdt'].toFixed(2));
-    let date = new Date(lastItem['timestamp']);
+    let date = new Date(lastItem['timestamp'] * 1000);
     let max = parseFloat(marginIsolateds[0]['totalNetAssetOfUsdt'].toFixed(2));
     let min = parseFloat(marginIsolateds[0]['totalNetAssetOfUsdt'].toFixed(2));
 
