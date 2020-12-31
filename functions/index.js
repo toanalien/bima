@@ -76,7 +76,7 @@ exports.getMarginIsolatedAccount = functions.https.onRequest(async (req, res) =>
         "symbol": "TOMOUSDT",
         "isIsolated": true
     })
-    console.log(marginOpenOrders)
+
     await map(marginOpenOrders, async _order => {
         await admin.firestore().collection('order').doc(_order['orderId'].toString()).set(_order, { merge: true });
     })
@@ -92,14 +92,13 @@ exports.getAbnormalVolatility = functions.https.onRequest(async (req, res) => {
     }
     let marginIsolateds = [];
     let timestamp = Math.floor(new Date().setSeconds(0) / 1000);
-    let date = new Date();
     let from = timestamp - 14 * 60 * 5;
     let snapshot = await admin.firestore().collection('marginIsolated').where('timestamp', '>=', from).orderBy('timestamp').get();
 
     snapshot.forEach(doc => { marginIsolateds.push(doc.data()) });
 
     let last = parseFloat(marginIsolateds.pop()['totalNetAssetOfUsdt'].toFixed(2));
-
+    let date = new Date(last['timestamp']);
     let max = parseFloat(marginIsolateds[0]['totalNetAssetOfUsdt'].toFixed(2));
     let min = parseFloat(marginIsolateds[0]['totalNetAssetOfUsdt'].toFixed(2));
 
@@ -130,7 +129,7 @@ Volatility : *${volatility}%*
 ${date.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
     `
         var body = {
-            chat_id: channel_id,
+            chat_id: chat_id,
             disable_web_page_preview: true,
             parse_mode: 'markdown',
             text: text,
